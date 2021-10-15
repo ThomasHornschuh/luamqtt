@@ -14,8 +14,15 @@ local select = select
 local require = require
 local tostring = tostring
 
-local os = require("os")
-local os_time = os.time
+
+if elua then
+	os_time  = function() 
+		 return math.floor(tmr.read()/10^6)
+	end
+else 		 
+	local os = require("os")
+	local os_time = os.time
+end 
 
 local string = require("string")
 local str_format = string.format

@@ -37,6 +37,12 @@ local client_create = client.create
 
 local ioloop_get = require("mqtt.ioloop").get
 
+-- Fixes for eLua
+if elua then 
+	package.loaded.mqtt = mqtt
+end	
+
+
 --- Create new MQTT client instance
 -- @param ... Same as for mqtt.client.create(...)
 -- @see mqtt.client.client_mt:__init
