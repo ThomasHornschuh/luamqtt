@@ -49,16 +49,14 @@ ioloop_mt.__index = ioloop_mt
 -- @tparam[opt=0.005] number args.timeout		network operations timeout in seconds
 -- @tparam[opt=0] number args.sleep				sleep interval after each iteration
 -- @tparam[opt] function args.sleep_function	custom sleep function to call after each iteration
+-- @tparam[opt] function args.tick_function   	custom tick function to call in schedulder
 -- @treturn ioloop_mt ioloop instance
 function ioloop_mt:__init(args)
 	args = args or {}
 	args.timeout = args.timeout or 0.005
-	args.sleep = args.sleep or 0
-	if elua and net.tick then 
-		args.sleep_function = args.sleep_function or net.tick
-    else
-	  args.sleep_function = args.sleep_function or require("socket").sleep
-	end  
+	args.sleep = args.sleep or 0	
+	args.sleep_function = args.sleep_function or require("socket").sleep or (function() end)
+	args.tick_function = args.tick_function or nil 
 	self.args = args
 	self.clients = {}
 	self.running = false --ioloop running flag, used by MQTT clients which are adding after this ioloop started to run
@@ -113,6 +111,9 @@ end
 function ioloop_mt:iteration()
 	self.timeouted = false
 	for _, client in ipairs(self.clients) do
+		if self.args.tick_function then 
+			self.args.tick_function() 
+		end
 		if type(client) ~= "function" then
 			client:_ioloop_iteration()
 		else
